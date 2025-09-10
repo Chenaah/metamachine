@@ -1,0 +1,185 @@
+<mujoco model="modular_robot">
+  <compiler angle="degree" coordinate="local" inertiafromgeom="true"/>
+  <option integrator="RK4" timestep="0.01">
+    <flag contact="enable" energy="enable" gravity="enable"/>
+  </option>
+  <size njmax="500" nconmax="100"/>
+  <visual>
+    <map znear="0.01" shadowclip="0.5"/>
+    <headlight ambient="0.6 0.6 0.6" diffuse="0.3 0.3 0.3" specular="0 0 0"/>
+    <quality shadowsize="26384"/>
+  </visual>
+  <default>
+    <joint armature="1" damping="1" limited="true"/>
+    <geom conaffinity="0" condim="3" density="5.0" friction="1 0.5 0.5" margin="0.01"/>
+  </default>
+  <asset>
+    <material name="matplane" specular="0" shininess="0.01" reflectance="0.1" texture="texplane" texrepeat="1 1" texuniform="true"/>
+    <material name="hfield" texture="texplane" texrepeat="1 1" texuniform="true" reflectance="0.1"/>
+    <material name="boundary" texture="boundary" texrepeat="1 1" texuniform="true" reflectance=".5" rgba="1 1 1 1"/>
+    <material name="metallic" specular="1" shininess="0.8" reflectance="0.9" emission="0.1" rgba="0.2 0.2 0.2 1"/>
+    <texture type="skybox" builtin="gradient" rgb1="0.8 0.8 0.8" rgb2="0 0 0" width="512" height="512"/>
+    <texture name="texplane" type="2d" builtin="checker" rgb1="0.6 0.6 0.6" rgb2="0.5 0.5 0.5" width="512" height="512" mark="cross" markrgb=".8 .8 .8"/>
+    <texture name="boundary" type="2d" builtin="flat" rgb1="0.6 0.6 0.7" rgb2="0.6 0.6 0.8" width="300" height="300"/>
+    <texture name="hfield" type="2d" builtin="checker" rgb1="0.4 0.4 0.4" rgb2="0.4 0.4 0.4" width="300" height="300" mark="edge" markrgb="0.2 0.2 0.2"/>
+    <mesh file="/home/chen/LAB/metamachine_dev/metamachine/assets/parts/top_lid.obj" name="up" scale="1 1 1"/>
+    <mesh file="/home/chen/LAB/metamachine_dev/metamachine/assets/parts/bottom_lid.obj" name="bottom" scale="1 1 1"/>
+    <mesh file="/home/chen/LAB/metamachine_dev/metamachine/assets/parts/leg4.4.obj" name="stick" scale="1 1 1"/>
+    <mesh file="/home/chen/LAB/metamachine_dev/metamachine/assets/parts/battery.obj" name="battery" scale="1 1 1"/>
+    <mesh file="/home/chen/LAB/metamachine_dev/metamachine/assets/parts/pcb.obj" name="pcb" scale="1 1 1"/>
+    <mesh file="/home/chen/LAB/metamachine_dev/metamachine/assets/parts/motor.obj" name="motor" scale="1 1 1"/>
+  </asset>
+  <worldbody>
+    <geom name="floor" pos="0 0 0" size="40 40 40" type="plane" material="matplane" conaffinity="1" condim="6" friction="1.0 .0 .0" priority="1"/>
+    <light mode="targetbodycom" target="torso0" pos="3 0 4" cutoff="100" diffuse="1 1 1" specular=".05 .05 .05"/>
+    <body name="torso0" pos="0 0 0">
+      <freejoint name="root0"/>
+      <body name="l0" pos="0 0 0" quat="1 0 0 0">
+        <geom type="mesh" name="left0" mesh="up" rgba="0.1 0.1 0.1 1" mass="0.1153" material="metallic" friction="1.0 .0 .0" priority="2"/>
+        <geom type="mesh" name="battery0" mesh="battery" rgba="0.15 0.15 0.15 1" mass="0.122" material="metallic" contype="10" conaffinity="0"/>
+        <geom type="mesh" name="pcb0" mesh="pcb" rgba="0 0 0 0.5" mass="0.1" material="metallic" contype="10" conaffinity="0"/>
+        <geom type="mesh" name="motor0" mesh="motor" rgba="0.15 0.15 0.15 1" mass="0.317" material="metallic" contype="10" conaffinity="0"/>
+        <site name="imu_site0" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+        <body name="passive0" pos="-1.3877787807814457e-17 0.16298792689260236 0.0812627924966804" quat="0.5082835992042238 0.8213771878206865 -0.22008735415789957 0.1361941799327562">
+          <geom name="stick0" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+          <body name="passive2" pos="0.035489986101854096 -0.13245043129203274 -0.05899999999999997" quat="0.27059805007309834 0.43045933457687935 -0.5609855267969309 0.6532814824381884">
+            <geom name="stick2" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+            <body name="l1" pos="6.938893903907228e-18 1.0408340855860843e-17 0.1821227766016838" quat="0.5082835992042238 -0.8213771878206865 0.2200873541578995 -0.13619417993275618">
+              <geom type="mesh" name="left1" mesh="up" rgba="0.1 0.1 0.1 1" mass="0.1153" material="metallic" friction="1.0 .0 .0" priority="2"/>
+              <geom type="mesh" name="battery1" mesh="battery" rgba="0.15 0.15 0.15 1" mass="0.122" material="metallic" contype="10" conaffinity="0"/>
+              <geom type="mesh" name="pcb1" mesh="pcb" rgba="0 0 0 0.5" mass="0.1" material="metallic" contype="10" conaffinity="0"/>
+              <geom type="mesh" name="motor1" mesh="motor" rgba="0.15 0.15 0.15 1" mass="0.317" material="metallic" contype="10" conaffinity="0"/>
+              <site name="imu_site1" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+            </body>
+            <body name="r1" pos="6.938893903907228e-18 1.0408340855860843e-17 0.1821227766016838" quat="0.8213771878206865 0.5082835992042238 -0.13619417993275618 -0.2200873541578995">
+              <joint axis="0 0 -1" name="joint1" pos="0 0 0" type="hinge" armature="0.05" damping="0.2" limited="auto"/>
+              <geom type="mesh" name="right1" mesh="bottom" rgba="0.15 0.15 0.15 1" mass="0.1623" material="metallic" euler="180 0 60" friction="1.0 .0 .0" priority="2"/>
+              <site name="back_imu_site1" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+              <body name="passive3" pos="-1.3877787807814457e-17 0.16298792689260236 0.0812627924966804" quat="0.5082835992042238 0.8213771878206865 -0.22008735415789957 0.1361941799327562">
+                <geom name="stick3" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+              </body>
+            </body>
+          </body>
+          <body name="passive4" pos="-0.13245043129203274 -0.035489986101854054 -1.3731079947676577e-17" quat="0.27059805007309834 0.7010573846499779 -0.09229595564125725 -0.6532814824381883">
+            <geom name="stick4" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+            <body name="l2" pos="6.938893903907228e-18 1.0408340855860843e-17 0.1821227766016838" quat="0.5082835992042238 -0.8213771878206865 0.2200873541578995 -0.13619417993275618">
+              <geom type="mesh" name="left2" mesh="up" rgba="0.1 0.1 0.1 1" mass="0.1153" material="metallic" friction="1.0 .0 .0" priority="2"/>
+              <geom type="mesh" name="battery2" mesh="battery" rgba="0.15 0.15 0.15 1" mass="0.122" material="metallic" contype="10" conaffinity="0"/>
+              <geom type="mesh" name="pcb2" mesh="pcb" rgba="0 0 0 0.5" mass="0.1" material="metallic" contype="10" conaffinity="0"/>
+              <geom type="mesh" name="motor2" mesh="motor" rgba="0.15 0.15 0.15 1" mass="0.317" material="metallic" contype="10" conaffinity="0"/>
+              <site name="imu_site2" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+            </body>
+            <body name="r2" pos="6.938893903907228e-18 1.0408340855860843e-17 0.1821227766016838" quat="0.8213771878206865 0.5082835992042238 -0.13619417993275618 -0.2200873541578995">
+              <joint axis="0 0 -1" name="joint2" pos="0 0 0" type="hinge" armature="0.05" damping="0.2" limited="auto"/>
+              <geom type="mesh" name="right2" mesh="bottom" rgba="0.15 0.15 0.15 1" mass="0.1623" material="metallic" euler="180 0 60" friction="1.0 .0 .0" priority="2"/>
+              <site name="back_imu_site2" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+              <body name="passive5" pos="-1.3877787807814457e-17 0.16298792689260236 0.0812627924966804" quat="0.5082835992042238 0.8213771878206865 -0.22008735415789957 0.1361941799327562">
+                <geom name="stick5" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+      <body name="r0" pos="0 0 0" quat="6.123233995736766e-17 1.0 0.0 0.0">
+        <joint axis="0 0 -1" name="joint0" pos="0 0 0" type="hinge" armature="0.05" damping="0.2" limited="auto"/>
+        <geom type="mesh" name="right0" mesh="bottom" rgba="0.15 0.15 0.15 1" mass="0.1623" material="metallic" euler="180 0 60" friction="1.0 .0 .0" priority="2"/>
+        <site name="back_imu_site0" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+        <body name="passive1" pos="-1.3877787807814457e-17 0.16298792689260236 0.0812627924966804" quat="0.5082835992042238 0.8213771878206865 -0.22008735415789957 0.1361941799327562">
+          <geom name="stick1" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+          <body name="passive6" pos="0.13245043129203274 0.03548998610185407 -1.3731079947676574e-17" quat="0.6532814824381883 0.09229595564125723 0.7010573846499779 0.27059805007309845">
+            <geom name="stick6" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+            <body name="l3" pos="6.938893903907228e-18 1.0408340855860843e-17 0.1821227766016838" quat="0.5082835992042238 -0.8213771878206865 0.2200873541578995 -0.13619417993275618">
+              <geom type="mesh" name="left3" mesh="up" rgba="0.1 0.1 0.1 1" mass="0.1153" material="metallic" friction="1.0 .0 .0" priority="2"/>
+              <geom type="mesh" name="battery3" mesh="battery" rgba="0.15 0.15 0.15 1" mass="0.122" material="metallic" contype="10" conaffinity="0"/>
+              <geom type="mesh" name="pcb3" mesh="pcb" rgba="0 0 0 0.5" mass="0.1" material="metallic" contype="10" conaffinity="0"/>
+              <geom type="mesh" name="motor3" mesh="motor" rgba="0.15 0.15 0.15 1" mass="0.317" material="metallic" contype="10" conaffinity="0"/>
+              <site name="imu_site3" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+            </body>
+            <body name="r3" pos="6.938893903907228e-18 1.0408340855860843e-17 0.1821227766016838" quat="0.8213771878206865 0.5082835992042238 -0.13619417993275618 -0.2200873541578995">
+              <joint axis="0 0 -1" name="joint3" pos="0 0 0" type="hinge" armature="0.05" damping="0.2" limited="auto"/>
+              <geom type="mesh" name="right3" mesh="bottom" rgba="0.15 0.15 0.15 1" mass="0.1623" material="metallic" euler="180 0 60" friction="1.0 .0 .0" priority="2"/>
+              <site name="back_imu_site3" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+              <body name="passive7" pos="-1.3877787807814457e-17 0.16298792689260236 0.0812627924966804" quat="0.5082835992042238 0.8213771878206865 -0.22008735415789957 0.1361941799327562">
+                <geom name="stick7" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+              </body>
+            </body>
+          </body>
+          <body name="passive8" pos="-0.03548998610185409 0.13245043129203274 -0.059" quat="0.6532814824381883 -0.560985526796931 -0.43045933457687946 -0.27059805007309856">
+            <geom name="stick8" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+            <body name="l4" pos="6.938893903907228e-18 1.0408340855860843e-17 0.1821227766016838" quat="0.5082835992042238 -0.8213771878206865 0.2200873541578995 -0.13619417993275618">
+              <geom type="mesh" name="left4" mesh="up" rgba="0.1 0.1 0.1 1" mass="0.1153" material="metallic" friction="1.0 .0 .0" priority="2"/>
+              <geom type="mesh" name="battery4" mesh="battery" rgba="0.15 0.15 0.15 1" mass="0.122" material="metallic" contype="10" conaffinity="0"/>
+              <geom type="mesh" name="pcb4" mesh="pcb" rgba="0 0 0 0.5" mass="0.1" material="metallic" contype="10" conaffinity="0"/>
+              <geom type="mesh" name="motor4" mesh="motor" rgba="0.15 0.15 0.15 1" mass="0.317" material="metallic" contype="10" conaffinity="0"/>
+              <site name="imu_site4" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+            </body>
+            <body name="r4" pos="6.938893903907228e-18 1.0408340855860843e-17 0.1821227766016838" quat="0.8213771878206865 0.5082835992042238 -0.13619417993275618 -0.2200873541578995">
+              <joint axis="0 0 -1" name="joint4" pos="0 0 0" type="hinge" armature="0.05" damping="0.2" limited="auto"/>
+              <geom type="mesh" name="right4" mesh="bottom" rgba="0.15 0.15 0.15 1" mass="0.1623" material="metallic" euler="180 0 60" friction="1.0 .0 .0" priority="2"/>
+              <site name="back_imu_site4" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+              <body name="passive9" pos="-1.3877787807814457e-17 0.16298792689260236 0.0812627924966804" quat="0.5082835992042238 0.8213771878206865 -0.22008735415789957 0.1361941799327562">
+                <geom name="stick9" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="0.15 0.15 0.15 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+              </body>
+            </body>
+          </body>
+        </body>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <position ctrlrange="-3.14 3.14" kp="20" kv="0.5" forcerange="-12 12" joint="joint0"/>
+    <position ctrlrange="-3.14 3.14" kp="20" kv="0.5" forcerange="-12 12" joint="joint1"/>
+    <position ctrlrange="-3.14 3.14" kp="20" kv="0.5" forcerange="-12 12" joint="joint2"/>
+    <position ctrlrange="-3.14 3.14" kp="20" kv="0.5" forcerange="-12 12" joint="joint3"/>
+    <position ctrlrange="-3.14 3.14" kp="20" kv="0.5" forcerange="-12 12" joint="joint4"/>
+  </actuator>
+  <contact>
+    <exclude body1="l0" body2="r0"/>
+    <exclude body1="l1" body2="r1"/>
+    <exclude body1="l2" body2="r2"/>
+    <exclude body1="l3" body2="r3"/>
+    <exclude body1="l4" body2="r4"/>
+  </contact>
+  <sensor>
+    <framequat name="imu_quat0" objtype="xbody" objname="l0"/>
+    <gyro name="imu_gyro0" site="imu_site0"/>
+    <velocimeter name="imu_vel0" site="imu_site0"/>
+    <accelerometer name="imu_acc0" site="imu_site0"/>
+    <framelinvel name="imu_globvel0" objtype="xbody" objname="l0"/>
+    <framequat name="back_imu_quat0" objtype="xbody" objname="r0"/>
+    <gyro name="back_imu_gyro0" site="back_imu_site0"/>
+    <velocimeter name="back_imu_vel0" site="back_imu_site0"/>
+    <framequat name="imu_quat1" objtype="xbody" objname="l1"/>
+    <gyro name="imu_gyro1" site="imu_site1"/>
+    <velocimeter name="imu_vel1" site="imu_site1"/>
+    <accelerometer name="imu_acc1" site="imu_site1"/>
+    <framelinvel name="imu_globvel1" objtype="xbody" objname="l1"/>
+    <framequat name="back_imu_quat1" objtype="xbody" objname="r1"/>
+    <gyro name="back_imu_gyro1" site="back_imu_site1"/>
+    <velocimeter name="back_imu_vel1" site="back_imu_site1"/>
+    <framequat name="imu_quat2" objtype="xbody" objname="l2"/>
+    <gyro name="imu_gyro2" site="imu_site2"/>
+    <velocimeter name="imu_vel2" site="imu_site2"/>
+    <accelerometer name="imu_acc2" site="imu_site2"/>
+    <framelinvel name="imu_globvel2" objtype="xbody" objname="l2"/>
+    <framequat name="back_imu_quat2" objtype="xbody" objname="r2"/>
+    <gyro name="back_imu_gyro2" site="back_imu_site2"/>
+    <velocimeter name="back_imu_vel2" site="back_imu_site2"/>
+    <framequat name="imu_quat3" objtype="xbody" objname="l3"/>
+    <gyro name="imu_gyro3" site="imu_site3"/>
+    <velocimeter name="imu_vel3" site="imu_site3"/>
+    <accelerometer name="imu_acc3" site="imu_site3"/>
+    <framelinvel name="imu_globvel3" objtype="xbody" objname="l3"/>
+    <framequat name="back_imu_quat3" objtype="xbody" objname="r3"/>
+    <gyro name="back_imu_gyro3" site="back_imu_site3"/>
+    <velocimeter name="back_imu_vel3" site="back_imu_site3"/>
+    <framequat name="imu_quat4" objtype="xbody" objname="l4"/>
+    <gyro name="imu_gyro4" site="imu_site4"/>
+    <velocimeter name="imu_vel4" site="imu_site4"/>
+    <accelerometer name="imu_acc4" site="imu_site4"/>
+    <framelinvel name="imu_globvel4" objtype="xbody" objname="l4"/>
+    <framequat name="back_imu_quat4" objtype="xbody" objname="r4"/>
+    <gyro name="back_imu_gyro4" site="back_imu_site4"/>
+    <velocimeter name="back_imu_vel4" site="back_imu_site4"/>
+  </sensor>
+</mujoco>

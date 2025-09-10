@@ -1,0 +1,24 @@
+# Include essential files
+include README.md
+include LICENSE
+include pyproject.toml
+
+# Include package data
+recursive-include metamachine/assets *
+recursive-include metamachine/environments/configs/default_configs *.yaml
+include metamachine/py.typed
+
+# Exclude unwanted files
+global-exclude *.pyc
+global-exclude *.pyo
+global-exclude __pycache__
+global-exclude .DS_Store
+global-exclude *.so
+global-exclude *.dylib
+global-exclude *.dll
+
+# Exclude development and temporary files
+recursive-exclude debug *
+recursive-exclude logs *
+recursive-exclude .vscode *
+exclude MUJOCO_LOG.TXT
