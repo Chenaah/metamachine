@@ -8,6 +8,8 @@
 
 A simulation framework for modular robots, designed to accelerate research in robot learning and evolutionary robotics.
 
+**🚧 This is an MVP (Minimum Viable Product) under active development. More features and modular robot architectures will be added continuously.**
+
 ## Overview
 
 MetaMachine is a simulation framework for modular robotic systems. Currently featuring a **MuJoCo-based modular legs** implementation based on my [recent work](https://arxiv.org/abs/2505.00784) on reconfigurable legged metamachines, this framework will expand to support diverse modular robot architectures using various simulation backends throughout my PhD research.
@@ -176,10 +178,12 @@ This is an active research project. Contributions, feedback, and collaborations 
 
 ### Release Status
 
-- 🔄 **Active Development**: This package is under active development
-- 📦 **PyPI Available**: Stable releases are published to PyPI
+- 🚧 **MVP Release**: This is a Minimum Viable Product with core functionality
+- 🔄 **Active Development**: Package is under continuous development and improvement
+- 📦 **PyPI Available**: Regular releases published to PyPI as features are added
 - 🧪 **Research Focus**: Designed primarily for research applications
-- 📈 **Expanding**: More modular robot architectures coming soon
+- 📈 **Expanding**: More modular robot architectures and features being added regularly
+- 💬 **Feedback Welcome**: Community input helps guide development priorities
 
 ## Citation
 
