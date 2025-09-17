@@ -1,0 +1,229 @@
+name: Documentation
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgl1-mesa-dri \
+          libgl1-mesa-dev \
+          libglib2.0-0 \
+          libsm6 \
+          libxext6 \
+          libxrender-dev \
+          libgomp1 \
+          ffmpeg \
+          libglu1-mesa-dev \
+          freeglut3-dev
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[docs]"
+
+    - name: Test package import
+      run: |
+        python -c "import metamachine; print('Package imported successfully')"
+        python -c "import sphinx; print('Sphinx version:', sphinx.__version__)"
+
+    - name: Build documentation
+      run: |
+        # Create docs directory
+        mkdir -p docs
+        cd docs
+
+        # Create _static and _templates directories
+        mkdir -p _static _templates
+
+        # Create Sphinx configuration
+        echo "import os" > conf.py
+        echo "import sys" >> conf.py
+        echo "sys.path.insert(0, os.path.abspath('..'))" >> conf.py
+        echo "" >> conf.py
+        echo "project = 'MetaMachine'" >> conf.py
+        echo "copyright = '2025, Chen Yu'" >> conf.py
+        echo "author = 'Chen Yu'" >> conf.py
+        echo "version = '0.1.0'" >> conf.py
+        echo "release = '0.1.0'" >> conf.py
+        echo "" >> conf.py
+        echo "extensions = [" >> conf.py
+        echo "    'sphinx.ext.autodoc'," >> conf.py
+        echo "    'sphinx.ext.viewcode'," >> conf.py
+        echo "    'sphinx.ext.napoleon'," >> conf.py
+        echo "]" >> conf.py
+        echo "" >> conf.py
+        echo "templates_path = ['_templates']" >> conf.py
+        echo "exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']" >> conf.py
+        echo "" >> conf.py
+        echo "html_theme = 'sphinx_rtd_theme'" >> conf.py
+        echo "html_static_path = ['_static']" >> conf.py
+        echo "" >> conf.py
+        echo "autodoc_default_options = {" >> conf.py
+        echo "    'members': True," >> conf.py
+        echo "    'undoc-members': True," >> conf.py
+        echo "    'show-inheritance': True," >> conf.py
+        echo "}" >> conf.py
+        echo "" >> conf.py
+        echo "autodoc_mock_imports = ['mujoco', 'cv2', 'jax']" >> conf.py
+
+        # Create index.rst
+        echo "MetaMachine Documentation" > index.rst
+        echo "========================" >> index.rst
+        echo "" >> index.rst
+        echo "Welcome to MetaMachine's documentation!" >> index.rst
+        echo "" >> index.rst
+        echo ".. toctree::" >> index.rst
+        echo "   :maxdepth: 2" >> index.rst
+        echo "   :caption: Contents:" >> index.rst
+        echo "" >> index.rst
+        echo "   modules" >> index.rst
+        echo "" >> index.rst
+        echo "Indices and tables" >> index.rst
+        echo "==================" >> index.rst
+        echo "" >> index.rst
+        echo "* :ref:\`genindex\`" >> index.rst
+        echo "* :ref:\`modindex\`" >> index.rst
+        echo "* :ref:\`search\`" >> index.rst
+
+        # Create modules.rst
+        echo "API Reference" > modules.rst
+        echo "=============" >> modules.rst
+        echo "" >> modules.rst
+        echo "This section contains the API documentation for MetaMachine." >> modules.rst
+        echo "" >> modules.rst
+        echo ".. note::" >> modules.rst
+        echo "   API documentation is automatically generated from the source code." >> modules.rst
+        echo "" >> modules.rst
+        echo "Basic Usage" >> modules.rst
+        echo "-----------" >> modules.rst
+        echo "" >> modules.rst
+        echo "Here's a simple example of how to use MetaMachine:" >> modules.rst
+        echo "" >> modules.rst
+        echo ".. code-block:: python" >> modules.rst
+        echo "" >> modules.rst
+        echo "   import metamachine" >> modules.rst
+        echo "   # Your code here" >> modules.rst
+        echo "" >> modules.rst
+        echo ".. automodule:: metamachine" >> modules.rst
+        echo "   :members:" >> modules.rst
+        echo "   :undoc-members:" >> modules.rst
+        echo "   :show-inheritance:" >> modules.rst
+
+        # Create Makefile
+        echo "SPHINXBUILD   = sphinx-build" > Makefile
+        echo "SOURCEDIR     = ." >> Makefile
+        echo "BUILDDIR      = _build" >> Makefile
+        echo "" >> Makefile
+        echo ".PHONY: help Makefile" >> Makefile
+        echo "" >> Makefile
+        echo "help:" >> Makefile
+        echo -e "\t@\$(SPHINXBUILD) -M help \"\$(SOURCEDIR)\" \"\$(BUILDDIR)\" \$(SPHINXOPTS) \$(O)" >> Makefile
+        echo "" >> Makefile
+        echo "%: Makefile" >> Makefile
+        echo -e "\t@\$(SPHINXBUILD) -M \$@ \"\$(SOURCEDIR)\" \"\$(BUILDDIR)\" \$(SPHINXOPTS) \$(O)" >> Makefile
+
+        # Build the documentation
+        sphinx-build -b html . _build/html
+
+        # Verify build output
+        if [ ! -d "_build/html" ] || [ -z "$(ls -A _build/html)" ]; then
+          echo "Error: Documentation build failed or produced no output"
+          exit 1
+        fi
+
+        echo "Documentation built successfully!"
+        echo "Contents of _build/html:"
+        ls -la _build/html/
+
+    - name: Verify build output before upload
+      run: |
+        echo "Current directory:"
+        pwd
+        echo "Contents of docs/_build/html:"
+        ls -la docs/_build/html/
+        echo "Size of documentation:"
+        du -sh docs/_build/html/
+
+    - name: Upload documentation
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation
+        path: docs/_build/html/
+        if-no-files-found: error
+
+  deploy-docs:
+    runs-on: ubuntu-latest
+    needs: build-docs
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+    - name: Download documentation
+      uses: actions/download-artifact@v4
+      with:
+        name: documentation
+        path: docs
+
+    - name: Verify documentation download
+      run: |
+        echo "Contents of docs directory:"
+        ls -la docs/
+        if [ -z "$(ls -A docs/)" ]; then
+          echo "Error: Downloaded documentation is empty"
+          exit 1
+        fi
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      with:
+        enablement: true
+      continue-on-error: true
+      id: setup-pages
+
+    - name: Upload to GitHub Pages
+      if: steps.setup-pages.outcome == 'success'
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: docs
+
+    - name: Deploy to GitHub Pages
+      if: steps.setup-pages.outcome == 'success'
+      id: deployment
+      uses: actions/deploy-pages@v4
+
+    - name: Pages deployment status
+      run: |
+        if [ "${{ steps.setup-pages.outcome }}" == "success" ]; then
+          echo "✅ Documentation deployed to GitHub Pages successfully!"
+          echo "📖 Documentation URL: ${{ steps.deployment.outputs.page_url }}"
+        else
+          echo "⚠️ GitHub Pages is not enabled for this repository."
+          echo "To enable GitHub Pages:"
+          echo "1. Go to repository Settings"
+          echo "2. Scroll down to 'Pages' section"
+          echo "3. Under 'Source', select 'GitHub Actions'"
+          echo "4. Re-run this workflow"
+        fi

@@ -1,0 +1,103 @@
+name: Benchmark
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libgl1-mesa-dev \
+          libglew-dev \
+          libosmesa6-dev \
+          libglu1-mesa-dev \
+          libglib2.0-0 \
+          libsm6 \
+          libxext6 \
+          libxrender-dev \
+          libgomp1 \
+          xvfb \
+          patchelf \
+          libxml2-dev \
+          libxslt1-dev \
+          libgtk-3-dev \
+          libavcodec-dev \
+          libavformat-dev \
+          libswscale-dev
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        # Install the package with all main dependencies first
+        pip install -e .
+        # Then install test dependencies and benchmark tools
+        pip install -e ".[test]"
+        pip install pytest-benchmark
+
+    - name: Run benchmarks
+      run: |
+        # Set environment variables to disable rendering completely
+        export MUJOCO_GL=disable
+        export SDL_VIDEODRIVER=dummy
+        export LIBGL_ALWAYS_SOFTWARE=1
+        export GALLIUM_DRIVER=softpipe
+
+        # Check if there are any benchmark tests
+        if pytest --collect-only --benchmark-only -q 2>/dev/null | grep -q "test session starts"; then
+          pytest --benchmark-only --benchmark-json=benchmark.json
+        else
+          echo "No benchmark tests found, creating empty results file"
+          echo '{"benchmarks": [], "info": {"message": "No benchmark tests found in this project"}}' > benchmark.json
+        fi
+
+    - name: Verify benchmark file
+      run: |
+        if [ ! -f benchmark.json ]; then
+          echo '{"benchmarks": [], "info": {"message": "No benchmark file generated"}}' > benchmark.json
+        fi
+        # Validate JSON format
+        python -c "import json; json.load(open('benchmark.json'))" || echo '{"benchmarks": [], "info": {"message": "Invalid JSON recovered"}}' > benchmark.json
+
+    - name: Check for benchmark results
+      id: check_benchmarks
+      run: |
+        if [ -f benchmark.json ] && python -c "import json; data=json.load(open('benchmark.json')); exit(0 if data.get('benchmarks') else 1)" 2>/dev/null; then
+          echo "has_benchmarks=true" >> $GITHUB_OUTPUT
+        else
+          echo "has_benchmarks=false" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Store benchmark result
+      uses: benchmark-action/github-action-benchmark@v1
+      if: github.ref == 'refs/heads/main' && steps.check_benchmarks.outputs.has_benchmarks == 'true'
+      with:
+        tool: 'pytest'
+        output-file-path: benchmark.json
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        auto-push: true
+        comment-on-alert: true
+        alert-threshold: '200%'
+        fail-on-alert: false
+        skip-fetch-gh-pages: true
+
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: benchmark-results
+        path: benchmark.json
