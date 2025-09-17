@@ -1,0 +1,71 @@
+<mujoco model="modular_robot">
+  <compiler angle="degree" coordinate="local" inertiafromgeom="true"/>
+  <option integrator="RK4" timestep="0.01">
+    <flag contact="enable" energy="enable" gravity="enable"/>
+  </option>
+  <size njmax="500" nconmax="100"/>
+  <visual>
+    <map znear="0.01" shadowclip="0.5"/>
+    <headlight ambient="0.6 0.6 0.6" diffuse="0.3 0.3 0.3" specular="0 0 0"/>
+    <quality shadowsize="26384"/>
+  </visual>
+  <default>
+    <joint armature="1" damping="1" limited="true"/>
+    <geom conaffinity="0" condim="3" density="5.0" friction="1 0.5 0.5" margin="0.01"/>
+  </default>
+  <asset>
+    <material name="matplane" specular="0" shininess="0.01" reflectance="0.1" texture="texplane" texrepeat="1 1" texuniform="true"/>
+    <material name="hfield" texture="texplane" texrepeat="1 1" texuniform="true" reflectance="0.1"/>
+    <material name="boundary" texture="boundary" texrepeat="1 1" texuniform="true" reflectance=".5" rgba="1 1 1 1"/>
+    <material name="metallic" specular="1" shininess="0.8" reflectance="0.9" emission="0.1" rgba="0.2 0.2 0.2 1"/>
+    <texture type="skybox" builtin="gradient" rgb1="0.8 0.8 0.8" rgb2="0 0 0" width="512" height="512"/>
+    <texture name="texplane" type="2d" builtin="checker" rgb1="0.6 0.6 0.6" rgb2="0.5 0.5 0.5" width="512" height="512" mark="cross" markrgb=".8 .8 .8"/>
+    <texture name="boundary" type="2d" builtin="flat" rgb1="0.6 0.6 0.7" rgb2="0.6 0.6 0.8" width="300" height="300"/>
+    <texture name="hfield" type="2d" builtin="checker" rgb1="0.4 0.4 0.4" rgb2="0.4 0.4 0.4" width="300" height="300" mark="edge" markrgb="0.2 0.2 0.2"/>
+    <mesh file="top_lid.obj" name="up" scale="1 1 1"/>
+    <mesh file="bottom_lid.obj" name="bottom" scale="1 1 1"/>
+    <mesh file="leg4.4.obj" name="stick" scale="1 1 1"/>
+    <mesh file="battery.obj" name="battery" scale="1 1 1"/>
+    <mesh file="pcb.obj" name="pcb" scale="1 1 1"/>
+    <mesh file="motor.obj" name="motor" scale="1 1 1"/>
+    <mesh file="legcut.obj" name="cut_stick" scale="1 1 1"/>
+  </asset>
+  <worldbody>
+    <geom name="floor" pos="0 0 0" size="40 40 40" type="plane" material="matplane" conaffinity="1" condim="6" friction="1.0 .0 .0" priority="1"/>
+    <light mode="targetbodycom" target="torso0" pos="3 0 4" cutoff="100" diffuse="1 1 1" specular=".05 .05 .05"/>
+    <body name="torso0" pos="0 0 0">
+      <freejoint name="root0"/>
+      <body name="l0" pos="0 0 0" quat="1 0 0 0">
+        <geom type="mesh" name="left0" mesh="up" rgba="0.050383 0.029803 0.527975 0.5" mass="0.1153" material="metallic" friction="1.0 .0 .0" priority="2"/>
+        <geom type="mesh" name="battery0" mesh="battery" rgba="0.050383 0.029803 0.527975 0.5" mass="0.122" material="metallic" contype="10" conaffinity="0"/>
+        <geom type="mesh" name="pcb0" mesh="pcb" rgba="0 0 0 0.5" mass="0.1" material="metallic" contype="10" conaffinity="0"/>
+        <geom type="mesh" name="motor0" mesh="motor" rgba="1 0 0 0.5" mass="0.317" material="metallic" contype="10" conaffinity="0"/>
+        <site name="imu_site0" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+        <body name="passive0" pos="0.0 0.0 0.1" quat="1 0 0 0">
+          <geom name="stick0" type="mesh" pos="0 0 0" quat="1 0 0 0" mesh="stick" rgba="1 0 0 1" mass="0.1734" friction="1.0 .0 .0" priority="2"/>
+        </body>
+      </body>
+      <body name="r0" pos="0 0 0" quat="6.123233995736766e-17 1.0 0.0 0.0">
+        <joint axis="0 0 -1" name="joint0" pos="0 0 0" type="hinge" armature="0.05" damping="0.2" limited="auto" range="-90 90"/>
+        <geom type="mesh" name="right0" mesh="bottom" rgba="0.5251915 0.5149015 0.7639875 0.5" mass="0.1623" material="metallic" euler="180 0 60" friction="1.0 .0 .0" priority="2"/>
+        <site name="back_imu_site0" pos="0 0 0" size="0.01" rgba="0 0 1 1"/>
+      </body>
+    </body>
+  </worldbody>
+  <actuator>
+    <position ctrlrange="-3.14 3.14" kp="20" kv="0.5" forcerange="-12 12" joint="joint0"/>
+  </actuator>
+  <contact>
+    <exclude body1="l0" body2="r0"/>
+  </contact>
+  <sensor>
+    <framequat name="imu_quat0" objtype="xbody" objname="l0"/>
+    <gyro name="imu_gyro0" site="imu_site0"/>
+    <velocimeter name="imu_vel0" site="imu_site0"/>
+    <accelerometer name="imu_acc0" site="imu_site0"/>
+    <framelinvel name="imu_globvel0" objtype="xbody" objname="l0"/>
+    <framequat name="back_imu_quat0" objtype="xbody" objname="r0"/>
+    <gyro name="back_imu_gyro0" site="back_imu_site0"/>
+    <velocimeter name="back_imu_vel0" site="back_imu_site0"/>
+  </sensor>
+</mujoco>

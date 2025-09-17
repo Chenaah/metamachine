@@ -1,0 +1,1 @@
+# Parts assets for metamachine
